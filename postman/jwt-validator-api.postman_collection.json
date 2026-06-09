@@ -1,0 +1,310 @@
+{
+  "info": {
+    "_postman_id": "f1dfd5be-4eec-4af5-a1f7-2f678470ed45",
+    "name": "jwt-validator-api",
+    "description": "Collection Postman para validar os principais cenarios da API jwt-validator-api.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "JWT Validation",
+      "item": [
+        {
+          "name": "Caso 1 - Token valido oficial",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJTZWVkIjoiNzg0MSIsIk5hbWUiOiJUb25pbmhvIEFyYXVqbyJ9.QY05sIjtrcJnP533kQNk8QXcaleJ1Q01jWY_ZzIZuAg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jwt/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jwt",
+                "validate"
+              ]
+            },
+            "description": "Espera HTTP 200 com {\"valid\": true}."
+          }
+        },
+        {
+          "name": "Caso 2 - Payload invalido oficial",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"eyJhbGciOiJzI1NiJ9.dfsdfsfryJSr2xrIjoiQWRtaW4iLCJTZrkIjoiNzg0MSIsIk5hbrUiOiJUb25pbmhvIEFyYXVqbyJ9.QY05fsdfsIjtrcJnP533kQNk8QXcaleJ1Q01jWY_ZzIZuAg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jwt/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jwt",
+                "validate"
+              ]
+            },
+            "description": "Espera HTTP 200 com {\"valid\": false}."
+          }
+        },
+        {
+          "name": "Caso 3 - Name invalido oficial",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiRXh0ZXJuYWwiLCJTZWVkIjoiODgwMzciLCJOYW1lIjoiTTRyaWEgT2xpdmlhIn0.6YD73XWZYQSSMDf6H0i3-kylz1-TY_Yt6h1cV2Ku-Qs\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jwt/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jwt",
+                "validate"
+              ]
+            },
+            "description": "Espera HTTP 200 com {\"valid\": false}."
+          }
+        },
+        {
+          "name": "Caso 4 - Claim extra oficial",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiTWVtYmVyIiwiT3JnIjoiQlIiLCJTZWVkIjoiMTQ2MjciLCJOYW1lIjoiVmFsZGlyIEFyYW5oYSJ9.cmrXV_Flm5mfdpfNUVopY_I2zeJUy4EZ4i3Fea98zvY\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jwt/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jwt",
+                "validate"
+              ]
+            },
+            "description": "Espera HTTP 200 com {\"valid\": false}."
+          }
+        },
+        {
+          "name": "Token estruturalmente invalido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"abc.def.ghi\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jwt/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jwt",
+                "validate"
+              ]
+            },
+            "description": "Espera HTTP 200 com {\"valid\": false}."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid Requests",
+      "item": [
+        {
+          "name": "Token vazio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jwt/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jwt",
+                "validate"
+              ]
+            },
+            "description": "Espera HTTP 400 com ErrorResponse."
+          }
+        },
+        {
+          "name": "Token ausente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jwt/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jwt",
+                "validate"
+              ]
+            },
+            "description": "Espera HTTP 400 com ErrorResponse."
+          }
+        },
+        {
+          "name": "Body vazio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jwt/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jwt",
+                "validate"
+              ]
+            },
+            "description": "Espera HTTP 400 com ErrorResponse."
+          }
+        },
+        {
+          "name": "JSON malformado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\":\n"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jwt/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jwt",
+                "validate"
+              ]
+            },
+            "description": "Espera HTTP 400 com ErrorResponse."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Actuator Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            },
+            "description": "Health check exposto pelo Spring Boot Actuator."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ]
+}
