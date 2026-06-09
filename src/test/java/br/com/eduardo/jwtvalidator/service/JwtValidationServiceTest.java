@@ -15,6 +15,7 @@ import br.com.eduardo.jwtvalidator.validator.JwtPayloadValidator;
 import br.com.eduardo.jwtvalidator.validator.JwtStructureValidator;
 import br.com.eduardo.jwtvalidator.validator.NameClaimValidator;
 import br.com.eduardo.jwtvalidator.validator.RoleClaimValidator;
+import br.com.eduardo.jwtvalidator.validator.SeedClaimValidator;
 
 class JwtValidationServiceTest {
 
@@ -23,7 +24,8 @@ class JwtValidationServiceTest {
             new JwtPayloadValidator(new ObjectMapper()),
             new ClaimsValidator(),
             new NameClaimValidator(),
-            new RoleClaimValidator()
+            new RoleClaimValidator(),
+            new SeedClaimValidator()
     );
 
     @Test
@@ -98,6 +100,24 @@ class JwtValidationServiceTest {
     void shouldReturnFalseWhenRoleHasDifferentCase() {
         boolean result = service.validate(buildToken("""
                 {"Name":"Eduardo","Role":"admin","Seed":3}
+                """));
+
+        assertFalse(result);
+    }
+
+    @Test
+    void shouldReturnTrueWhenSeedIsPrimeText() {
+        boolean result = service.validate(buildToken("""
+                {"Name":"Eduardo","Role":"Admin","Seed":"7841"}
+                """));
+
+        assertTrue(result);
+    }
+
+    @Test
+    void shouldReturnFalseWhenSeedIsNotPrime() {
+        boolean result = service.validate(buildToken("""
+                {"Name":"Eduardo","Role":"Admin","Seed":4}
                 """));
 
         assertFalse(result);

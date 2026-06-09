@@ -9,6 +9,7 @@ import br.com.eduardo.jwtvalidator.validator.JwtPayloadValidator;
 import br.com.eduardo.jwtvalidator.validator.JwtStructureValidator;
 import br.com.eduardo.jwtvalidator.validator.NameClaimValidator;
 import br.com.eduardo.jwtvalidator.validator.RoleClaimValidator;
+import br.com.eduardo.jwtvalidator.validator.SeedClaimValidator;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,6 +21,7 @@ public class JwtValidationService {
     private final ClaimsValidator claimsValidator;
     private final NameClaimValidator nameClaimValidator;
     private final RoleClaimValidator roleClaimValidator;
+    private final SeedClaimValidator seedClaimValidator;
 
     public boolean validate(String token) {
         if (!jwtStructureValidator.isValid(token)) {
@@ -33,6 +35,7 @@ public class JwtValidationService {
 
         return claimsValidator.isValid(payload)
                 && nameClaimValidator.isValid(payload)
-                && roleClaimValidator.isValid(payload);
+                && roleClaimValidator.isValid(payload)
+                && seedClaimValidator.isValid(payload);
     }
 }
