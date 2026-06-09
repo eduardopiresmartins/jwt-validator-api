@@ -2,7 +2,21 @@
 
 ## Objetivo
 
-Esta aplicação expõe uma API REST para validar um JWT de acordo com regras específicas de negócio. O fluxo valida a estrutura do token, o payload decodificado e o conteúdo das claims exigidas pelo desafio.
+Esta aplicação expõe uma API REST para validar um JWT de acordo com regras específicas de negócio. O fluxo valida a estrutura do token, o payload decodificado e o conteúdo das claims exigidas pelo desafio técnico.
+
+## Status da solução
+
+Atualmente o projeto possui:
+
+- API REST funcional
+- Validações de JWT implementadas
+- Testes unitários
+- Testes de integração com os 4 casos oficiais
+- Tratamento global de erros
+- Logs de observabilidade
+- Swagger/OpenAPI
+- Dockerfile multi-stage
+- Workflow de CI com GitHub Actions
 
 ## Tecnologias utilizadas
 
@@ -85,6 +99,14 @@ Também é possível acessar a especificação OpenAPI em:
 
 `http://localhost:8080/v3/api-docs`
 
+## Health check
+
+A aplicação utiliza Spring Boot Actuator para expor verificações básicas de saúde.
+
+Com a aplicação em execução, o health check pode ser acessado em:
+
+`http://localhost:8080/actuator/health`
+
 ## Exemplos de uso com curl
 
 Exemplo com o caso válido oficial:
@@ -119,6 +141,35 @@ Resposta esperada:
 }
 ```
 
+## Tratamento de erros
+
+A API diferencia falhas de regra de negócio de falhas de request:
+
+- JWT inválido por regra de negócio retorna HTTP `200` com `{"valid": false}`
+- Request inválido retorna HTTP `400` com payload padronizado
+
+Exemplo para token vazio:
+
+```json
+{
+  "message": "Requisicao invalida",
+  "details": [
+    "Token is required"
+  ]
+}
+```
+
+Exemplo para body malformado:
+
+```json
+{
+  "message": "Corpo da requisicao malformado",
+  "details": [
+    "Corpo da requisicao ausente ou invalido"
+  ]
+}
+```
+
 ## Regras de validação
 
 - JWT deve possuir 3 partes
@@ -133,7 +184,7 @@ Resposta esperada:
 
 O desafio fornece tokens, mas não fornece secret, chave pública ou algoritmo esperado para validação criptográfica da assinatura.
 
-Por esse motivo, a solução valida:
+Por esse motivo, a aplicação valida:
 
 - a estrutura do JWT
 - a decodificação do payload
@@ -141,7 +192,9 @@ Por esse motivo, a solução valida:
 
 A assinatura é mantida como parte estrutural do token, mas não é validada criptograficamente.
 
-Caso uma chave/secret fosse fornecida, a validação criptográfica poderia ser adicionada como uma etapa anterior às validações de negócio.
+Essa decisão evita assumir um segredo ou algoritmo não informado no enunciado e mantém a solução aderente à massa de teste fornecida.
+
+Caso uma chave ou secret fosse fornecida, a validação criptográfica poderia ser adicionada como etapa anterior às validações de negócio.
 
 ## Decisões técnicas
 
@@ -150,7 +203,7 @@ Caso uma chave/secret fosse fornecida, a validação criptográfica poderia ser 
 - O service orquestra o fluxo completo de validação
 - Falhas de regra de negócio retornam HTTP `200` com `valid: false`
 - Erros de request inválido retornam HTTP `400` com payload padronizado
-- O código prioriza simplicidade, testabilidade e baixo acoplamento
+- Código orientado à simplicidade, testabilidade e baixo acoplamento
 
 ## Observabilidade
 
@@ -175,17 +228,37 @@ O workflow executa build e testes automatizados em `push` e `pull_request` para 
 
 ## Arquitetura sugerida para AWS
 
-Uma evolução natural e simples para execução em AWS pode considerar:
+### Opção simples para deploy demonstrativo
+
+Uma opção objetiva para demonstração da aplicação é executá-la em uma instância AWS Lightsail com Docker instalado.
+
+Fluxo:
+
+```text
+Cliente -> IP publico Lightsail -> Container Docker -> Spring Boot API
+```
+
+Essa opção foi considerada pela simplicidade operacional e pelo custo previsível para o contexto do desafio.
+
+### Evolução para ambiente produtivo
+
+Uma evolução natural para um ambiente mais robusto pode considerar:
 
 - Amazon ECR para armazenar a imagem Docker
 - Amazon ECS Fargate para executar o container
-- Application Load Balancer para distribuir requisições
+- Application Load Balancer para roteamento
 - Amazon CloudWatch Logs para centralização dos logs
-- AWS X-Ray como evolução para tracing distribuído
+- AWS X-Ray ou OpenTelemetry para tracing distribuído
 - GitHub Actions para build, testes e publicação da imagem
 - API Gateway como camada opcional de exposição, autenticação e controle de tráfego
 
-Como a aplicação já está preparada para containerização via Docker, uma evolução para ECS Fargate se torna um próximo passo natural, sem necessidade de gerenciar servidores diretamente.
+Fluxo:
+
+```text
+Cliente -> API Gateway ou ALB -> ECS Fargate -> Container da aplicacao -> CloudWatch Logs
+```
+
+A aplicação já está preparada para containerização via Docker, o que facilita uma evolução para ECS Fargate sem necessidade de gerenciar servidores diretamente.
 
 ## Estrutura do projeto
 
@@ -203,12 +276,26 @@ src
     └── java/br/com/eduardo/jwtvalidator
 ```
 
+## Historico de evolucao
+
+A solução foi construída incrementalmente, com etapas separadas para:
+
+- setup inicial
+- contrato da API
+- validações
+- testes
+- observabilidade
+- tratamento de erros
+- Docker
+- CI
+- documentação
+
 ## Melhorias futuras
 
-- Validação criptográfica da assinatura caso secret/chave pública seja fornecida
+- Validação criptográfica da assinatura caso secret ou chave pública sejam fornecidos
 - Publicação da imagem no Amazon ECR
 - Deploy em ECS Fargate
-- Métricas customizadas com Micrometer/Prometheus
+- Métricas customizadas com Micrometer e Prometheus
 - Tracing distribuído com AWS X-Ray ou OpenTelemetry
-- Terraform/OpenTofu para provisionamento de infraestrutura
-- Collection do Insomnia/Postman
+- Terraform ou OpenTofu para provisionamento de infraestrutura
+- Collection do Insomnia ou Postman
