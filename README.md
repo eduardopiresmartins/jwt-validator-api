@@ -17,6 +17,7 @@ Atualmente o projeto possui:
 - Swagger/OpenAPI
 - Dockerfile multi-stage
 - Workflow de CI com GitHub Actions
+- Deploy demonstrativo em AWS Lightsail com Docker
 
 ## Tecnologias utilizadas
 
@@ -58,6 +59,21 @@ docker run --rm -p 8080:8080 jwt-validator-api
 ```
 
 O `Dockerfile` utiliza multi-stage build para compilar a aplicação em uma etapa e executar apenas o `.jar` na imagem final.
+
+## Execucao em cloud
+
+Foi realizado um deploy demonstrativo da aplicacao em uma instancia AWS Lightsail com Ubuntu e Docker.
+
+Nesse fluxo, a aplicacao foi:
+
+- clonada na instancia
+- empacotada em imagem Docker a partir do `Dockerfile`
+- executada em container com exposicao da porta `8080`
+- validada externamente via `curl`, incluindo:
+  - `GET /actuator/health`
+  - `POST /api/v1/jwt/validate` com token valido
+  - `POST /api/v1/jwt/validate` com token invalido
+  - `POST /api/v1/jwt/validate` com request invalido
 
 ## Endpoint
 
@@ -230,7 +246,7 @@ O workflow executa build e testes automatizados em `push` e `pull_request` para 
 
 ### Opção simples para deploy demonstrativo
 
-Uma opção objetiva para demonstração da aplicação é executá-la em uma instância AWS Lightsail com Docker instalado.
+Uma opção objetiva para demonstração da aplicação é executá-la em uma instância AWS Lightsail com Docker instalado. Essa foi a abordagem utilizada para disponibilizar a API em um ambiente cloud simples durante a avaliacao da solucao.
 
 Fluxo:
 
