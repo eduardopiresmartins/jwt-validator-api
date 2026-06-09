@@ -49,7 +49,7 @@ A aplicação sobe por padrão na porta `8080`.
 ./mvnw clean test
 ```
 
-O projeto possui testes unitários e testes de integração, incluindo os 4 casos oficiais do desafio.
+O projeto possui testes unitarios e testes de integracao, incluindo os 4 casos oficiais do desafio.
 
 ## Como executar com Docker
 
@@ -64,16 +64,26 @@ O `Dockerfile` utiliza multi-stage build para compilar a aplicação em uma etap
 
 Foi realizado um deploy demonstrativo da aplicacao em uma instancia AWS Lightsail com Ubuntu e Docker.
 
-Nesse fluxo, a aplicacao foi:
+A aplicacao foi:
 
 - clonada na instancia
 - empacotada em imagem Docker a partir do `Dockerfile`
 - executada em container com exposicao da porta `8080`
+- configurada para envio de logs do container ao Amazon CloudWatch Logs
 - validada externamente via `curl`, incluindo:
   - `GET /actuator/health`
-  - `POST /api/v1/jwt/validate` com token valido
-  - `POST /api/v1/jwt/validate` com token invalido
-  - `POST /api/v1/jwt/validate` com request invalido
+- `POST /api/v1/jwt/validate` com token valido
+- `POST /api/v1/jwt/validate` com token invalido
+- `POST /api/v1/jwt/validate` com request invalido
+
+Endpoints publicos do ambiente demonstrativo atual:
+
+- API: `http://32.192.177.12:8080/api/v1/jwt/validate`
+- Swagger UI: `http://32.192.177.12:8080/swagger-ui.html`
+- OpenAPI JSON: `http://32.192.177.12:8080/v3/api-docs`
+- Health check: `http://32.192.177.12:8080/actuator/health`
+
+Por se tratar de um ambiente demonstrativo, esses enderecos podem mudar caso a instancia seja recriada ou substituida.
 
 ## Endpoint
 
@@ -105,21 +115,27 @@ ou
 
 ## Documentação da API com Swagger
 
-A aplicação utiliza SpringDoc OpenAPI para disponibilizar documentação interativa do endpoint.
+A aplicacao utiliza SpringDoc OpenAPI para disponibilizar documentacao interativa do endpoint.
 
-Com a aplicação em execução, acesse:
+Ambiente local:
 
 `http://localhost:8080/swagger-ui.html`
 
-Também é possível acessar a especificação OpenAPI em:
+Ambiente demonstrativo em cloud:
+
+`http://32.192.177.12:8080/swagger-ui.html`
+
+Especificacao OpenAPI:
 
 `http://localhost:8080/v3/api-docs`
 
+Especificacao OpenAPI no ambiente demonstrativo:
+
+`http://32.192.177.12:8080/v3/api-docs`
+
 ## Health check
 
-A aplicação utiliza Spring Boot Actuator para expor verificações básicas de saúde.
-
-Com a aplicação em execução, o health check pode ser acessado em:
+A aplicacao utiliza Spring Boot Actuator para expor verificacoes basicas de saude:
 
 `http://localhost:8080/actuator/health`
 
@@ -210,7 +226,7 @@ A assinatura é mantida como parte estrutural do token, mas não é validada cri
 
 Essa decisão evita assumir um segredo ou algoritmo não informado no enunciado e mantém a solução aderente à massa de teste fornecida.
 
-Caso uma chave ou secret fosse fornecida, a validação criptográfica poderia ser adicionada como etapa anterior às validações de negócio.
+Caso uma chave ou secret fossem fornecidos, a validacao criptografica poderia ser adicionada antes das validacoes de negocio.
 
 ## Decisões técnicas
 
@@ -223,17 +239,25 @@ Caso uma chave ou secret fosse fornecida, a validação criptográfica poderia s
 
 ## Observabilidade
 
-Foram adicionados logs no fluxo de validação para facilitar rastreabilidade operacional.
+Foram adicionados logs no fluxo de validacao para facilitar rastreabilidade operacional.
 
 - Cada validação recebe um identificador curto
 - O JWT completo não é registrado em log para evitar exposição de dados sensíveis
 - O Actuator está disponível para health check
+- No ambiente demonstrativo em AWS Lightsail, os logs do container sao enviados para o Amazon CloudWatch Logs
 
 Exemplo:
 
 ```text
 [0f4252c1] Iniciando validacao de JWT
 [0f4252c1] Validacao de JWT concluida com sucesso
+```
+
+Exemplo observado no CloudWatch:
+
+```text
+[a27885e2] Iniciando validacao de JWT
+[a27885e2] Falha na validacao do JWT: payload invalido
 ```
 
 ## CI/CD
@@ -244,17 +268,17 @@ O workflow executa build e testes automatizados em `push` e `pull_request` para 
 
 ## Arquitetura sugerida para AWS
 
-### Opção simples para deploy demonstrativo
+### Opcao simples para deploy demonstrativo
 
-Uma opção objetiva para demonstração da aplicação é executá-la em uma instância AWS Lightsail com Docker instalado. Essa foi a abordagem utilizada para disponibilizar a API em um ambiente cloud simples durante a avaliacao da solucao.
+Uma opcao objetiva para demonstracao da aplicacao e executa-la em uma instancia AWS Lightsail com Docker instalado. Essa foi a abordagem utilizada para disponibilizar a API em um ambiente cloud simples durante a avaliacao da solucao.
 
 Fluxo:
 
 ```text
-Cliente -> IP publico Lightsail -> Container Docker -> Spring Boot API
+Cliente -> IP publico Lightsail -> Container Docker -> Spring Boot API -> CloudWatch Logs
 ```
 
-Essa opção foi considerada pela simplicidade operacional e pelo custo previsível para o contexto do desafio.
+Essa opcao foi considerada pela simplicidade operacional e pelo custo previsivel para o contexto do desafio.
 
 ### Evolução para ambiente produtivo
 
@@ -274,7 +298,7 @@ Fluxo:
 Cliente -> API Gateway ou ALB -> ECS Fargate -> Container da aplicacao -> CloudWatch Logs
 ```
 
-A aplicação já está preparada para containerização via Docker, o que facilita uma evolução para ECS Fargate sem necessidade de gerenciar servidores diretamente.
+A aplicacao ja esta preparada para containerizacao via Docker, o que facilita uma evolucao para ECS Fargate sem necessidade de gerenciar servidores diretamente.
 
 ## Estrutura do projeto
 
@@ -314,4 +338,3 @@ A solução foi construída incrementalmente, com etapas separadas para:
 - Métricas customizadas com Micrometer e Prometheus
 - Tracing distribuído com AWS X-Ray ou OpenTelemetry
 - Terraform ou OpenTofu para provisionamento de infraestrutura
-- Collection do Insomnia ou Postman
