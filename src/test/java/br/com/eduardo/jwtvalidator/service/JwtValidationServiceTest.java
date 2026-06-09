@@ -13,13 +13,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.com.eduardo.jwtvalidator.validator.ClaimsValidator;
 import br.com.eduardo.jwtvalidator.validator.JwtPayloadValidator;
 import br.com.eduardo.jwtvalidator.validator.JwtStructureValidator;
+import br.com.eduardo.jwtvalidator.validator.NameClaimValidator;
 
 class JwtValidationServiceTest {
 
     private final JwtValidationService service = new JwtValidationService(
             new JwtStructureValidator(),
             new JwtPayloadValidator(new ObjectMapper()),
-            new ClaimsValidator()
+            new ClaimsValidator(),
+            new NameClaimValidator()
     );
 
     @Test
@@ -59,6 +61,24 @@ class JwtValidationServiceTest {
         boolean result = service.validate(buildToken("""
                 {"Name":"Eduardo","Role":"Admin"}
                 """));
+
+        assertFalse(result);
+    }
+
+    @Test
+    void shouldReturnFalseWhenNameContainsNumber() {
+        boolean result = service.validate(buildToken("""
+                {"Name":"M4ria Olivia","Role":"Admin","Seed":3}
+                """));
+
+        assertFalse(result);
+    }
+
+    @Test
+    void shouldReturnFalseWhenNameHasMoreThan256Characters() {
+        boolean result = service.validate(buildToken("""
+                {"Name":"%s","Role":"Admin","Seed":3}
+                """.formatted("a".repeat(257))));
 
         assertFalse(result);
     }

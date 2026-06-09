@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import br.com.eduardo.jwtvalidator.validator.ClaimsValidator;
 import br.com.eduardo.jwtvalidator.validator.JwtPayloadValidator;
 import br.com.eduardo.jwtvalidator.validator.JwtStructureValidator;
+import br.com.eduardo.jwtvalidator.validator.NameClaimValidator;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -16,6 +17,7 @@ public class JwtValidationService {
     private final JwtStructureValidator jwtStructureValidator;
     private final JwtPayloadValidator jwtPayloadValidator;
     private final ClaimsValidator claimsValidator;
+    private final NameClaimValidator nameClaimValidator;
 
     public boolean validate(String token) {
         if (!jwtStructureValidator.isValid(token)) {
@@ -27,6 +29,6 @@ public class JwtValidationService {
             return false;
         }
 
-        return claimsValidator.isValid(payload);
+        return claimsValidator.isValid(payload) && nameClaimValidator.isValid(payload);
     }
 }

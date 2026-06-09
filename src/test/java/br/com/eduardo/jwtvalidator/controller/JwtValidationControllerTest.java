@@ -17,6 +17,7 @@ import br.com.eduardo.jwtvalidator.service.JwtValidationService;
 import br.com.eduardo.jwtvalidator.validator.ClaimsValidator;
 import br.com.eduardo.jwtvalidator.validator.JwtPayloadValidator;
 import br.com.eduardo.jwtvalidator.validator.JwtStructureValidator;
+import br.com.eduardo.jwtvalidator.validator.NameClaimValidator;
 
 class JwtValidationControllerTest {
 
@@ -24,7 +25,8 @@ class JwtValidationControllerTest {
             new JwtValidationService(
                     new JwtStructureValidator(),
                     new JwtPayloadValidator(new ObjectMapper()),
-                    new ClaimsValidator()
+                    new ClaimsValidator(),
+                    new NameClaimValidator()
             )
     );
 
