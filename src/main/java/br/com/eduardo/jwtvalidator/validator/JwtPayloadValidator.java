@@ -5,6 +5,7 @@ import java.util.Base64;
 
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -20,21 +21,24 @@ public class JwtPayloadValidator {
     private final ObjectMapper objectMapper;
 
     public boolean isValid(String token) {
+        return extractPayload(token) != null;
+    }
+
+    public JsonNode extractPayload(String token) {
         if (token == null || token.isBlank()) {
-            return false;
+            return null;
         }
 
         String[] parts = token.split(JWT_SEPARATOR, -1);
         if (parts.length != JWT_PARTS_COUNT) {
-            return false;
+            return null;
         }
 
         try {
             byte[] decodedPayload = Base64.getUrlDecoder().decode(parts[PAYLOAD_INDEX]);
-            objectMapper.readTree(new String(decodedPayload, StandardCharsets.UTF_8));
-            return true;
+            return objectMapper.readTree(new String(decodedPayload, StandardCharsets.UTF_8));
         } catch (Exception exception) {
-            return false;
+            return null;
         }
     }
 }
