@@ -68,7 +68,9 @@ class JwtValidationControllerIntegrationTest {
                         .content("""
                                 {"token":""}
                                 """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Requisicao invalida"))
+                .andExpect(jsonPath("$.details[0]").value("Token is required"));
     }
 
     @Test
@@ -78,7 +80,31 @@ class JwtValidationControllerIntegrationTest {
                         .content("""
                                 {}
                                 """))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Requisicao invalida"))
+                .andExpect(jsonPath("$.details[0]").value("Token is required"));
+    }
+
+    @Test
+    void deveRetornarBadRequestQuandoBodyForVazio() throws Exception {
+        mockMvc.perform(post(ENDPOINT)
+                        .contentType(APPLICATION_JSON)
+                        .content(""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Corpo da requisicao malformado"))
+                .andExpect(jsonPath("$.details[0]").value("Corpo da requisicao ausente ou invalido"));
+    }
+
+    @Test
+    void deveRetornarBadRequestQuandoJsonForMalformado() throws Exception {
+        mockMvc.perform(post(ENDPOINT)
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {"token":
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Corpo da requisicao malformado"))
+                .andExpect(jsonPath("$.details[0]").value("Corpo da requisicao ausente ou invalido"));
     }
 
     private String bodyComToken(String token) {
