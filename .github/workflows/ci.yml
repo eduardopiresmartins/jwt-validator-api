@@ -7,6 +7,10 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build-and-test:
@@ -29,3 +33,51 @@ jobs:
 
       - name: Run tests
         run: ./mvnw clean test
+
+  deploy-lightsail:
+    name: Deploy to AWS Lightsail
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Configure SSH key
+        env:
+          LIGHTSAIL_SSH_KEY: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$LIGHTSAIL_SSH_KEY" > ~/.ssh/lightsail_key
+          chmod 600 ~/.ssh/lightsail_key
+
+      - name: Add Lightsail host to known_hosts
+        env:
+          LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
+        run: ssh-keyscan -H "$LIGHTSAIL_HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy application
+        env:
+          LIGHTSAIL_HOST: ${{ secrets.LIGHTSAIL_HOST }}
+          LIGHTSAIL_USER: ${{ secrets.LIGHTSAIL_USER }}
+          LIGHTSAIL_APP_PATH: ${{ secrets.LIGHTSAIL_APP_PATH }}
+          LIGHTSAIL_LOG_GROUP: ${{ secrets.LIGHTSAIL_LOG_GROUP }}
+          LIGHTSAIL_LOG_STREAM: ${{ secrets.LIGHTSAIL_LOG_STREAM }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          ssh -i ~/.ssh/lightsail_key "${LIGHTSAIL_USER}@${LIGHTSAIL_HOST}" <<EOF
+            set -e
+            cd "${LIGHTSAIL_APP_PATH}"
+            git pull origin main
+            docker build -t jwt-validator-api .
+            docker rm -f jwt-validator-api || true
+            docker run -d \
+              --name jwt-validator-api \
+              -p 8080:8080 \
+              --log-driver=awslogs \
+              --log-opt awslogs-region=${AWS_REGION} \
+              --log-opt awslogs-group=${LIGHTSAIL_LOG_GROUP} \
+              --log-opt awslogs-create-group=true \
+              --log-opt awslogs-stream=${LIGHTSAIL_LOG_STREAM} \
+              jwt-validator-api
+            sleep 10
+            curl --fail http://localhost:8080/actuator/health
+          EOF

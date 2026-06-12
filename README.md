@@ -18,6 +18,7 @@ Atualmente o projeto possui:
 - Dockerfile multi-stage
 - Workflow de CI com GitHub Actions
 - Deploy demonstrativo em AWS Lightsail com Docker
+- Workflow simples de CD para AWS Lightsail via GitHub Actions
 
 ## Tecnologias utilizadas
 
@@ -265,6 +266,24 @@ Exemplo observado no CloudWatch:
 O projeto possui workflow de CI com GitHub Actions em `.github/workflows/ci.yml`.
 
 O workflow executa build e testes automatizados em `push` e `pull_request` para a branch `main`.
+
+Para `push` na branch `main`, o mesmo workflow tambem pode executar um deploy simples na instancia AWS Lightsail via SSH, mantendo o projeto aderente ao ambiente atual da solucao.
+
+Fluxo resumido:
+
+```text
+Push na main -> GitHub Actions -> ./mvnw clean test -> SSH na instancia Lightsail -> docker build -> restart do container -> health check
+```
+
+Secrets esperados no GitHub para a etapa de deploy:
+
+- `LIGHTSAIL_HOST`
+- `LIGHTSAIL_USER`
+- `LIGHTSAIL_SSH_KEY`
+- `LIGHTSAIL_APP_PATH`
+- `LIGHTSAIL_LOG_GROUP`
+- `LIGHTSAIL_LOG_STREAM`
+- `AWS_REGION`
 
 ## Arquitetura sugerida para AWS
 
