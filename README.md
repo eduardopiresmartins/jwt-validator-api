@@ -18,7 +18,7 @@ Atualmente o projeto possui:
 - Dockerfile multi-stage
 - Workflow de CI com GitHub Actions
 - Deploy demonstrativo em AWS Lightsail com Docker
-- Workflow simples de CD para AWS Lightsail via GitHub Actions
+- Workflow de CI/CD com GitHub Actions e deploy automatizado para AWS Lightsail
 
 ## Tecnologias utilizadas
 
@@ -71,6 +71,7 @@ A aplicacao foi:
 - empacotada em imagem Docker a partir do `Dockerfile`
 - executada em container com exposicao da porta `8080`
 - configurada para envio de logs do container ao Amazon CloudWatch Logs
+- integrada a um workflow de deploy automatizado via GitHub Actions para a branch `main`
 - validada externamente via `curl`, incluindo:
   - `GET /actuator/health`
 - `POST /api/v1/jwt/validate` com token valido
@@ -267,7 +268,9 @@ O projeto possui workflow de CI com GitHub Actions em `.github/workflows/ci.yml`
 
 O workflow executa build e testes automatizados em `push` e `pull_request` para a branch `main`.
 
-Para `push` na branch `main`, o mesmo workflow tambem pode executar um deploy simples na instancia AWS Lightsail via SSH, mantendo o projeto aderente ao ambiente atual da solucao.
+Para `push` na branch `main`, o mesmo workflow executa um deploy simples na instancia AWS Lightsail via SSH, mantendo o projeto aderente ao ambiente atual da solucao.
+
+Esse fluxo foi validado na pratica com execucao bem-sucedida da pipeline, atualizacao do container na instancia e verificacao posterior do endpoint de health check e da API publicada.
 
 Fluxo resumido:
 
